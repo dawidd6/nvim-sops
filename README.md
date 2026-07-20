@@ -31,8 +31,8 @@ require("sops").setup({
 ## Commands
 
 - `:SopsEdit` decrypts the current file into a temporary sibling file, opens it, and re-encrypts the original file after writes.
-- `:SopsEnable` enables automatic decrypt-on-open and decrypts the current file if it validates as SOPS.
-- `:SopsDisable` disables automatic decrypt-on-open. From a decrypted buffer, it closes the temporary buffer and opens the encrypted file.
+- `:SopsEnable` enables automatic decrypt-on-open. `:SopsEnable!` also decrypts the current file if it validates as SOPS.
+- `:SopsDisable` disables automatic decrypt-on-open. `:SopsDisable!` also closes a decrypted buffer and opens the encrypted file.
 
 Automatic decrypt-on-open validates SOPS metadata markers, then confirms with `sops filestatus <file>`.
 

@@ -149,8 +149,13 @@ function M.edit(bufnr, path)
 	})
 end
 
-function M.enable()
+---@param opts table?
+function M.enable(opts)
 	M.config.auto_edit = true
+
+	if not opts or not opts.bang then
+		return
+	end
 
 	local bufnr = vim.api.nvim_get_current_buf()
 	local path = vim.api.nvim_buf_get_name(bufnr)
@@ -159,20 +164,25 @@ function M.enable()
 	end
 end
 
-function M.disable()
+---@param opts table?
+function M.disable(opts)
+	M.config.auto_edit = false
+
+	if not opts or not opts.bang then
+		return
+	end
+
 	local bufnr = vim.api.nvim_get_current_buf()
 	local path = vim.api.nvim_buf_get_name(bufnr)
 	if path == "" or not M.is_decrypted(path) then
-		M.config.auto_edit = false
 		return
 	end
 
 	if vim.bo[bufnr].modified then
+		M.config.auto_edit = true
 		vim.notify("Cannot close modified sops decrypted buffer", vim.log.levels.WARN)
 		return
 	end
-
-	M.config.auto_edit = false
 
 	local encrypted = vim.b[bufnr].sops_encrypted_path
 		or vim.fs.joinpath(vim.fs.dirname(path), vim.fs.basename(path):sub(#M.config.decrypted_prefix + 1))
@@ -192,10 +202,12 @@ function M.setup(opts)
 	})
 
 	vim.api.nvim_create_user_command("SopsEnable", M.enable, {
+		bang = true,
 		desc = "Enable sops automatic decryption",
 	})
 
 	vim.api.nvim_create_user_command("SopsDisable", M.disable, {
+		bang = true,
 		desc = "Disable sops automatic decryption",
 	})
 

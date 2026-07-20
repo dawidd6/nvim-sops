@@ -68,7 +68,7 @@ test("accepts custom config", function()
 	same(".plain~", sops.config.decrypted_prefix)
 end)
 
-test("enables and disables automatic editing", function()
+test("enables and disables automatic editing without changing the buffer", function()
 	sops.setup({
 		auto_edit = false,
 	})
@@ -220,7 +220,7 @@ test("enable decrypts the current encrypted buffer", function()
 		})
 
 		vim.cmd.edit(encrypted)
-		vim.cmd.SopsEnable()
+		vim.cmd.SopsEnable({ bang = true })
 
 		same(true, sops.config.auto_edit)
 		same(true, vim.startswith(vim.api.nvim_buf_get_name(0), tmpdir .. "/.decrypted~secret.yaml."))
@@ -259,7 +259,7 @@ test("disable closes decrypted buffer and opens encrypted file", function()
 		vim.cmd.edit(encrypted)
 		vim.cmd.SopsEdit()
 		decrypted = vim.api.nvim_buf_get_name(0)
-		vim.cmd.SopsDisable()
+		vim.cmd.SopsDisable({ bang = true })
 
 		same(false, sops.config.auto_edit)
 		same(encrypted, vim.api.nvim_buf_get_name(0))
