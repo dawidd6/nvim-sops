@@ -10,15 +10,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: docker.io/library/ubuntu
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Setup neovim
-        uses: rhysd/action-setup-vim@v1
-        with:
-          neovim: true
-          version: stable
+      - name: Install stuff
+        run: |
+          apt update
+          apt install -y make neovim stylua
 
       - name: Run tests
         run: make test style-check
