@@ -1,47 +1,43 @@
-# A Neovim Plugin Template
+# nvim-sops
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ellisonleao/nvim-plugin-template/lint-test.yml?branch=main&style=for-the-badge)
-![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
+Edit [SOPS](https://github.com/getsops/sops) encrypted files in Neovim through a temporary decrypted buffer.
 
-A template repository for Neovim plugins.
+## Requirements
 
-## Using it
+- Neovim with `vim.system`
+- `sops` available on `$PATH`
 
-Via `gh`:
+## Installation
 
+Install with your preferred plugin manager:
+
+```lua
+{
+  "dawidd6/nvim-sops",
+  opts = {},
+}
 ```
-$ gh repo create my-plugin -p ellisonleao/nvim-plugin-template
+
+## Configuration
+
+```lua
+require("sops").setup({
+  auto_edit = true,
+  command = "sops",
+  decrypted_prefix = ".decrypted~",
+})
 ```
 
-Via github web page:
+## Commands
 
-Click on `Use this template`
+- `:SopsEdit` decrypts the current file into a temporary sibling file, opens it, and re-encrypts the original file after writes.
+- `:SopsEnable` enables automatic decrypt-on-open and decrypts the current file if it validates as SOPS.
+- `:SopsDisable` disables automatic decrypt-on-open. From a decrypted buffer, it closes the temporary buffer and opens the encrypted file.
 
-![](https://docs.github.com/assets/cb-36544/images/help/repository/use-this-template-button.png)
+Automatic decrypt-on-open validates SOPS metadata markers, then confirms with `sops filestatus <file>`.
 
-## Features and structure
+Temporary decrypted files use `decrypted_prefix` plus a unique suffix and are removed when their buffer is deleted or Neovim exits.
 
-- 100% Lua
-- Github actions for:
-  - running tests using [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) and [busted](https://olivinelabs.com/busted/)
-  - check for formatting errors (Stylua)
-  - vimdocs autogeneration from README.md file
-  - luarocks release (LUAROCKS_API_KEY secret configuration required)
+## API
 
-### Plugin structure
-
-```
-.
-├── lua
-│   ├── plugin_name
-│   │   └── module.lua
-│   └── plugin_name.lua
-├── Makefile
-├── plugin
-│   └── plugin_name.lua
-├── README.md
-├── tests
-│   ├── minimal_init.lua
-│   └── plugin_name
-│       └── plugin_name_spec.lua
-```
+`require("sops").is_decryptable(bufnr, path)` checks for SOPS metadata markers, then confirms with `sops filestatus`. This is useful for statusline components such as lualine.
