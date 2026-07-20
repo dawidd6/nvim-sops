@@ -1,11 +1,12 @@
-TESTS_INIT=tests/minimal_init.lua
-TESTS_DIR=tests/
+.PHONY: all test style
 
-.PHONY: test
+all: build test style
+
+build:
+	podman build -t nvim-sops .
 
 test:
-	@nvim \
-		--headless \
-		--noplugin \
-		-u ${TESTS_INIT} \
-		-c "PlenaryBustedDirectory ${TESTS_DIR} { minimal_init = '${TESTS_INIT}' }"
+	podman run --rm -v .:/wd -w /wd nvim-sops nvim --headless --noplugin -l test/run.lua
+
+style:
+	podman run --rm -v .:/wd -w /wd nvim-sops stylua --check .

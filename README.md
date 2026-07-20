@@ -1,47 +1,69 @@
-# A Neovim Plugin Template
+# nvim-sops
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ellisonleao/nvim-plugin-template/lint-test.yml?branch=main&style=for-the-badge)
-![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
+Edit [SOPS](https://github.com/getsops/sops) encrypted files in Neovim through a temporary decrypted buffer.
 
-A template repository for Neovim plugins.
+Inspired by [vscode-sops](https://github.com/signageos/vscode-sops).
 
-## Using it
+## Requirements
 
-Via `gh`:
+- Neovim 0.12 (might work on older versions, it just wasn't tested)
+- `sops` available on `$PATH`
 
+## Installation
+
+Install with your preferred plugin manager:
+
+```lua
+vim.pack.add({{ src = "https://github.com/dawidd6/nvim-sops" }})
 ```
-$ gh repo create my-plugin -p ellisonleao/nvim-plugin-template
+
+## Setup
+
+```lua
+require("sops").setup()
 ```
 
-Via github web page:
+## Commands
 
-Click on `Use this template`
+- `:SopsEdit` decrypts the current file into a temporary sibling file, opens it, and re-encrypts the original file after writes.
+- `:SopsEnable` enables automatic decrypt-on-open. `:SopsEnable!` also decrypts the current file, like `:SopsEdit`.
+- `:SopsDisable` disables automatic decrypt-on-open. `:SopsDisable!` also closes a decrypted buffer and opens the encrypted file.
 
-![](https://docs.github.com/assets/cb-36544/images/help/repository/use-this-template-button.png)
+Automatic decrypt-on-open checks the last 50 lines for SOPS encryption markers, then confirms with `sops filestatus <file>`.
 
-## Features and structure
+Temporary decrypted files are named `.decrypted~<original-name>` and are removed when their buffer is deleted or Neovim exits.
 
-- 100% Lua
-- Github actions for:
-  - running tests using [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) and [busted](https://olivinelabs.com/busted/)
-  - check for formatting errors (Stylua)
-  - vimdocs autogeneration from README.md file
-  - luarocks release (LUAROCKS_API_KEY secret configuration required)
+## API
 
-### Plugin structure
+- `require("sops").setup()` creates commands and automatic decrypt-on-open autocmds.
+- `require("sops").edit()` decrypts the current file into a temporary sibling file and wires writes back through SOPS.
+- `require("sops").enable(opts)` enables automatic decrypt-on-open. With `{ bang = true }`, it also decrypts the current buffer.
+- `require("sops").disable(opts)` disables automatic decrypt-on-open. With `{ bang = true }`, it closes a decrypted buffer and opens the encrypted file.
+- `require("sops").is_decrypted()` checks whether the current buffer is a temporary decrypted file and sets `vim.b.sops = "decrypted"` when true.
+- `require("sops").is_encrypted()` checks the current buffer for SOPS encryption markers, then confirms with `sops filestatus` and sets `vim.b.sops = "encrypted"` when true.
+- `require("sops").auto_edit` contains the active automatic decrypt-on-open state.
 
-```
-.
-├── lua
-│   ├── plugin_name
-│   │   └── module.lua
-│   └── plugin_name.lua
-├── Makefile
-├── plugin
-│   └── plugin_name.lua
-├── README.md
-├── tests
-│   ├── minimal_init.lua
-│   └── plugin_name
-│       └── plugin_name_spec.lua
+Example lualine component:
+
+```lua
+sections = {
+  lualine_x = {
+    {
+      function()
+        return "󰿇 SOPS"
+      end,
+      cond = function()
+        return vim.b["sops"] == "decrypted"
+      end,
+    },
+    {
+      function()
+        return "󰍁 SOPS"
+      end,
+      cond = function()
+        return vim.b["sops"] == "encrypted"
+      end,
+    },
+  },
+}
 ```
