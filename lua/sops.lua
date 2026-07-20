@@ -26,7 +26,7 @@ end
 ---@param path string?
 ---@return boolean
 function M.is_decryptable(bufnr, path)
-	bufnr = bufnr or 0
+	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	path = path or vim.api.nvim_buf_get_name(bufnr)
 
 	local seen = {}
@@ -67,7 +67,7 @@ end
 ---@param bufnr integer?
 ---@param path string?
 function M.edit(bufnr, path)
-	bufnr = bufnr or 0
+	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	path = path or vim.api.nvim_buf_get_name(bufnr)
 
 	local path_decrypted = vim.fs.joinpath(
