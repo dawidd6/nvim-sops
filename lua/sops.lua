@@ -179,7 +179,6 @@ function M.disable(opts)
 	end
 
 	if vim.bo[bufnr].modified then
-		M.config.auto_edit = true
 		vim.notify("Cannot close modified sops decrypted buffer", vim.log.levels.WARN)
 		return
 	end

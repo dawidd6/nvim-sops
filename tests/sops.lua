@@ -313,7 +313,7 @@ test("uses unique decrypted file names", function()
 	assert(ok, err)
 end)
 
-test("disable keeps modified decrypted buffer open and automatic editing enabled", function()
+test("disable bang keeps modified decrypted buffer open", function()
 	local tmpdir = make_tmpdir()
 	local encrypted = tmpdir .. "/secret.yaml"
 	local command = tmpdir .. "/sops"
@@ -339,9 +339,9 @@ test("disable keeps modified decrypted buffer open and automatic editing enabled
 		vim.cmd.edit(encrypted)
 		local decrypted = vim.api.nvim_buf_get_name(0)
 		vim.api.nvim_buf_set_lines(0, 0, -1, false, { "password: changed" })
-		vim.cmd.SopsDisable()
+		vim.cmd.SopsDisable({ bang = true })
 
-		same(true, sops.config.auto_edit)
+		same(false, sops.config.auto_edit)
 		same(decrypted, vim.api.nvim_buf_get_name(0))
 		same(true, vim.bo.modified)
 	end, debug.traceback)
