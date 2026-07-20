@@ -11,15 +11,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: docker.io/library/ubuntu
+      image: docker.io/library/alpine:edge
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
 
       - name: Install stuff
-        run: |
-          apt update
-          apt install -y make neovim stylua
+        run: apk add -U make neovim stylua
 
       - name: Run tests
         run: make test style-check
