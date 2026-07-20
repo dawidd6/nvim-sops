@@ -220,6 +220,9 @@ test("enable decrypts the current encrypted buffer", function()
 		})
 
 		vim.cmd.edit(encrypted)
+		vim.cmd.SopsEnable()
+		same(encrypted, vim.api.nvim_buf_get_name(0))
+
 		vim.cmd.SopsEnable({ bang = true })
 
 		same(true, sops.config.auto_edit)
@@ -259,6 +262,9 @@ test("disable closes decrypted buffer and opens encrypted file", function()
 		vim.cmd.edit(encrypted)
 		vim.cmd.SopsEdit()
 		decrypted = vim.api.nvim_buf_get_name(0)
+		vim.cmd.SopsDisable()
+		same(decrypted, vim.api.nvim_buf_get_name(0))
+
 		vim.cmd.SopsDisable({ bang = true })
 
 		same(false, sops.config.auto_edit)
