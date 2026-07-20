@@ -22,10 +22,13 @@ function M.is_decrypted(path)
 	return M.config.decrypted_prefix ~= "" and vim.startswith(vim.fs.basename(path), M.config.decrypted_prefix)
 end
 
----@param bufnr integer
----@param path string
+---@param bufnr integer?
+---@param path string?
 ---@return boolean
 function M.is_decryptable(bufnr, path)
+	bufnr = bufnr or 0
+	path = path or vim.api.nvim_buf_get_name(bufnr)
+
 	local seen = {}
 	local sops_markers = { "lastmodified", "mac", "unencrypted_suffix", "version", "sops", "recipient" }
 
@@ -64,13 +67,8 @@ end
 ---@param bufnr integer?
 ---@param path string?
 function M.edit(bufnr, path)
-	if not bufnr then
-		bufnr = vim.api.nvim_get_current_buf()
-	end
-
-	if not path then
-		path = vim.api.nvim_buf_get_name(bufnr)
-	end
+	bufnr = bufnr or 0
+	path = path or vim.api.nvim_buf_get_name(bufnr)
 
 	local path_decrypted = vim.fs.joinpath(
 		vim.fs.dirname(path),
@@ -157,10 +155,8 @@ function M.enable(opts)
 		return
 	end
 
-	local bufnr = vim.api.nvim_get_current_buf()
-	local path = vim.api.nvim_buf_get_name(bufnr)
-	if M.is_decryptable(bufnr, path) then
-		M.edit(bufnr, path)
+	if M.is_decryptable() then
+		M.edit()
 	end
 end
 
