@@ -35,9 +35,10 @@ function M.is_encrypted()
 				seen[marker] = true
 
 				if vim.tbl_count(seen) == #sops_markers then
-					local file_status = vim.system({ "sops", "filestatus", path }, { stdout = false, stderr = false })
+					local file_status = vim.system({ "sops", "filestatus", path }, { text = true, stderr = false })
 						:wait()
-					if file_status.code == 0 then
+					local ok, status = pcall(vim.json.decode, file_status.stdout or "")
+					if file_status.code == 0 and ok and type(status) == "table" and status.encrypted == true then
 						vim.b[bufnr].sops = "e"
 						return true
 					end

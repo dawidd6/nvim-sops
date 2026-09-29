@@ -6,6 +6,7 @@ M.fixtures = vim.fs.joinpath(M.root, "test", "fixtures")
 local env_names = {
 	"PATH",
 	"NVIM_FAKE_FILESTATUS_FAIL",
+	"NVIM_FAKE_FILESTATUS_PLAIN",
 	"NVIM_FAKE_DECRYPT_FAIL",
 	"NVIM_FAKE_DECRYPT_TEXT",
 	"NVIM_FAKE_DECRYPT_NO_EOL",
@@ -98,6 +99,8 @@ function M.fake_sops()
 		"printf '%s\\n' \"$*\" >> " .. vim.fn.shellescape(calls),
 		'if [ "$1" = filestatus ]; then',
 		'  [ "$NVIM_FAKE_FILESTATUS_FAIL" = 1 ] && exit 1',
+		'  [ "$NVIM_FAKE_FILESTATUS_PLAIN" = 1 ] && echo \'{"encrypted":false}\' && exit 0',
+		"  echo '{\"encrypted\":true}'",
 		"  exit 0",
 		"fi",
 		'if [ "$1" = -d ]; then',
@@ -120,6 +123,7 @@ function M.fake_sops()
 		cleanup = function()
 			vim.env.PATH = old_path
 			vim.env.NVIM_FAKE_FILESTATUS_FAIL = nil
+			vim.env.NVIM_FAKE_FILESTATUS_PLAIN = nil
 			vim.env.NVIM_FAKE_DECRYPT_FAIL = nil
 			vim.env.NVIM_FAKE_DECRYPT_NO_EOL = nil
 			vim.env.NVIM_FAKE_ENCRYPT_FAIL = nil
